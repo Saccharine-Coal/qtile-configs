@@ -100,21 +100,23 @@ SYMBOLS = {
 BACKGROUND = "#00000000"
 DARK_BACKGROUND = GRUVBOX["dark0_hard"]
 FOREGROUND = GRUVBOX["light0_hard"]
-#FOREGROUND = "#000000"
 ACCENT = GRUVBOX["faded_purple"]
-#FOREGROUND = GRUVBOX["bright_orange"]
+# FOREGROUND = GRUVBOX["bright_orange"]
 DEBUG = "#00ff00"
 BORDER_COLOR = GRUVBOX["light0_hard"] + "00"
 ICON_PATHS = []
-WALLPAPER = '~/.config/qtile/awesome.png'
-
+WALLPAPER = "~/.config/qtile/awesome.png"
+WHITE = GRUVBOX["light0_hard"]
+MAX_ALPHA = 50
+TEXT_COLOR = WHITE
 if 0:
     # set lightmode colors
+    MAX_ALPHA = 200
+    TEXT_COLOR = WHITE
     ACCENT = GRUVBOX["bright_orange"]
-    WHITE = GRUVBOX["light0_hard"]
     FOREGROUND = GRUVBOX["dark0_hard"]
-    ICON_PATHS = ["/home/saccharine/.config/qtile/qtile-layout-icons/layout-icons/gruvbox-dark0"]
-    WALLPAPER = '~/.config/qtile/background.jpg'
+    # ICON_PATHS = ["/home/saccharine/.config/qtile/qtile-layout-icons/layout-icons/gruvbox-dark0"]
+    WALLPAPER = "~/.config/qtile/background.jpg"
 DECOR = {
     "decorations": [
         RectDecoration(
@@ -142,7 +144,7 @@ widget_defaults = dict(
     fontsize=FONTSIZE,
     padding=PADDING,
     background=BACKGROUND,
-    foreground=FOREGROUND,
+    foreground=TEXT_COLOR,
 )
 
 SCREENDIM = (1366, 768)  # (1366, 768)
@@ -151,11 +153,11 @@ FakeScreenDim = namedtuple("FakeScreenDimDim", "x y width height")
 MAIN = FakeScreenDim(
     PADDING,
     PADDING,
-    SCREENDIM[0]-2*PADDING,
-    SCREENDIM[1] -PADDING,
+    SCREENDIM[0] - 2 * PADDING,
+    SCREENDIM[1] - PADDING,
 )
-LMARGIN = int(PADDING)
-HIGHLIGHT=BorderDecoration(border_width=[4, 0, 0, 0], colour=WHITE + "32")  #"08"
+LMARGIN = int(1.5 * PADDING)  # 4*PADDING for showcasing
+HIGHLIGHT = BorderDecoration(border_width=[4, 0, 0, 0], colour=WHITE + "32")  # "08"
 
 
 def val_to_hex(val) -> str:
@@ -176,8 +178,8 @@ def get_endcap(left) -> dict:
 def init_widgets() -> list:
     NUM_WIDGETS = 8
     # transparency settings
-    MAX_ALPHA, STEPS, COLOR = 50, NUM_WIDGETS, FOREGROUND
-    STEP = int(MAX_ALPHA / STEPS)
+    M_ALPHA, STEPS, COLOR = MAX_ALPHA, NUM_WIDGETS, FOREGROUND
+    STEP = int(M_ALPHA / STEPS)
     PRIGHT = dict(decorations=[PowerLineDecoration(path="rounded_left")])
     PLEFT = dict(decorations=[PowerLineDecoration(path="rounded_right")])
     # params2 = dict(decorations=[RectDecoration(colour=color + dalpha, filled=True, padding_y=10, group=False, radius=20)])
@@ -193,15 +195,21 @@ def init_widgets() -> list:
     items = [
         *build_transition(BACKGROUND, g1(), 1),
         widget.CheckUpdates(
-            distro="Arch", no_update_string="0 updates", colour_no_updates=FOREGROUND, **build_dict(g1(), g2(1))
+            distro="Arch",
+            no_update_string="0 updates",
+            colour_no_updates=TEXT_COLOR,
+            **build_dict(g1(), g2(1))
         ),
         *build_transition(g1(1), g1(), 0),
         widget.CurrentLayoutIcon(
-            scale=0.35, padding=0, **build_dict(g1(), g2(), group=True), custom_icon_paths=ICON_PATHS
+            scale=0.35,
+            padding=0,
+            **build_dict(g1(), g2(), group=True),
+            custom_icon_paths=ICON_PATHS
         ),
         widget.CurrentLayout(**build_dict(g1(), g2(1), group=True)),
         *build_transition(g1(1), g1(), 0),
-        widget.Spacer(length=int(1.5*FONTSIZE), **build_dict(g1(), g2(), group=True)),
+        widget.Spacer(length=int(1.5 * FONTSIZE), **build_dict(g1(), g2(), group=True)),
         widget.TaskList(
             # background=g1(),
             border=ACCENT + "aa",
@@ -226,12 +234,12 @@ def init_widgets() -> list:
             urgent_border=GRUVBOX["bright_red"],
             **build_dict(g1(), g2(), group=True)
         ),
-        widget.Spacer(length=int(1.5*FONTSIZE), **build_dict(g1(), g2(1), group=True)),
+        widget.Spacer(
+            length=int(1.5 * FONTSIZE), **build_dict(g1(), g2(1), group=True)
+        ),
         *build_transition(g1(1), g1(), 0),
         widget.TextBox(
-            "\uf120 ",
-            fontsize=2 * FONTSIZE,
-            **build_dict(g1(), g2(), group=True)
+            "\uf120 ", fontsize=2 * FONTSIZE, **build_dict(g1(), g2(), group=True)
         ),
         widget.Prompt(
             prompt="",
@@ -243,14 +251,12 @@ def init_widgets() -> list:
         ),
         widget.Spacer(background=g1(), **dict(decorations=[HIGHLIGHT])),
         *build_transition(g1(1), g1(), 0),
-        widget.TextBox(
-            "", fontsize=FONTSIZE, **build_dict(g1(), g2(), group=True)
-        ),
+        widget.TextBox("", fontsize=FONTSIZE, **build_dict(g1(), g2(), group=True)),
         widget.PulseVolume(**build_dict(g1(), g2(1), group=True)),
         *build_transition(g1(1), g1(), 0),
         # widget.TextBox("foo", **build_dict(g1(), g2(1))),
         widget.Backlight(
-            format=SYMBOLS["brightness"]+" {percent:2.0%}",
+            format=SYMBOLS["brightness"] + " {percent:2.0%}",
             backlight_name="intel_backlight",
             **build_dict(g1(), g2(1), group=True)
         ),
@@ -271,14 +277,18 @@ def init_widgets() -> list:
         ),
         *build_transition(g1(1), g1(), 0),
         widget.QuickExit(
-            default_text= " "+ SYMBOLS["power"],
+            default_text=" " + SYMBOLS["power"],
             countdown_format="({})",
             fontsize=int(2 * FONTSIZE),
             **build_dict(g1(), g2(1))
         ),
-        #widget.Spacer(length=FONTSIZE, background=g1(), **dict(decorations=[HIGHLIGHT])),
-        #*build_transition(g1(), DEBUG, 0),
-        widget.Spacer(length=1, background=g1(), **dict(decorations=[PowerLineDecoration(path="rounded_left"), HIGHLIGHT]))
+        # widget.Spacer(length=FONTSIZE, background=g1(), **dict(decorations=[HIGHLIGHT])),
+        # *build_transition(g1(), DEBUG, 0),
+        widget.Spacer(
+            length=1,
+            background=g1(),
+            **dict(decorations=[PowerLineDecoration(path="rounded_left"), HIGHLIGHT])
+        ),
     ]
     return items
 
@@ -319,7 +329,7 @@ def build_dict(color_1, color_2, group=False):
                 radius=20,
                 use_widget_background=False,
             ),
-            HIGHLIGHT
+            HIGHLIGHT,
         ],
     )
 
@@ -364,7 +374,7 @@ def init_bar() -> bar.Bar:
         init_widgets(),
         60,
         background=BACKGROUND,  # make color transparent
-        border_width=0,#PADDING,
+        border_width=0,  # PADDING,
         border_color="#00000000",
     )
 
@@ -455,8 +465,13 @@ for i in groups:
     )
 
 layouts = [
-    layout.MonadTall(margin=LMARGIN, border_focus=WHITE, border_normal=GRUVBOX["dark1"], border_width=2),
-    #layout.Columns(border_focus_stack=[FOREGROUND, "#8f3d3d"], border_width=4, margin=LMARGIN),
+    layout.MonadTall(
+        margin=LMARGIN,
+        border_focus=WHITE,
+        border_normal=GRUVBOX["dark1"],
+        border_width=2,
+    ),
+    # layout.Columns(border_focus_stack=[FOREGROUND, "#8f3d3d"], border_width=4, margin=LMARGIN),
     layout.Max(margin=LMARGIN),
     # Try more layouts by unleashing below layouts.
     # layout.Stack(num_stacks=2),
@@ -474,10 +489,15 @@ layouts = [
 extension_defaults = widget_defaults.copy()
 
 screens = [
-    Screen(top=init_bar(), x=MAIN.x, y=MAIN.y, width=MAIN.width, height=MAIN.height,
+    Screen(
+        top=init_bar(),
+        x=MAIN.x,
+        y=MAIN.y,
+        width=MAIN.width,
+        height=MAIN.height,
         wallpaper=WALLPAPER,
-        wallpaper_mode='fill',
-          ),
+        wallpaper_mode="fill",
+    ),
 ]
 
 # Drag floating layouts.

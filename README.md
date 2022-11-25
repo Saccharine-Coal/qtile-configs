@@ -8,8 +8,10 @@
 
 ## Screenshots: May Not Be Current!
 ### powerline
-### glassmorphism
+<img src="https://github.com/Saccharine-Coal/qtile-configs/blob/b7f937fbba9818c14db4ecb4f7c1cf92e62ca5b7/images/screenshot.png" width="400">
 
+### glassmorphism
+<img src="https://github.com/Saccharine-Coal/qtile-configs/blob/b7f937fbba9818c14db4ecb4f7c1cf92e62ca5b7/images/both.png" width="400">
 
 ## Dependencies
 1. Python3 >= 3.6
